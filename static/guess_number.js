@@ -32,7 +32,7 @@ function getPost(data) {
 	document.getElementById("try").value = "Старт";
 	table = newTable(
 		document.getElementById("records"), 
-		"Лучшие результаты (" + game.max_leaders + "-ка)", 
+		"Лучшие результаты '" + game.max_number + "' ("  + game.max_leaders + "-ка)", 
 		["место", "игрок", "ходы", "скорость", "дата-время"]);
 	let i=1
 	for(el of data["records"])	{
