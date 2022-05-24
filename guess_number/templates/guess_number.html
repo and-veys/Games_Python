@@ -11,13 +11,38 @@
 		</title>		
 	</head>
 	<body>
-		<input class="name" id="name" type="text" placeholder="введите Ваше имя"/>
+		<div class="number" id="param">
+			<div>
+				<div class="text">
+					"... до"
+				</div>
+				<input class="number" id="set_max_number" type="text" placeholder="число" value="{{max_number}}" >
+			</div>
+			<div>
+				<div class="text">
+					Рекорды
+				</div>
+				<input class="number" id="set_max_leaders" type="text" placeholder="кол-во" value="{{max_leaders}}">
+			</div>
+			<div class="number button" id="ok">
+				OK
+			</div>
+			<div class="number button" id="cancel">
+				Отмена
+			</div>			
+		</div>
+		<div class="title">			
+			<div class="number button" id="choice"> 
+				выбор
+			</div>
+			<input class="number" id="name" type="text" placeholder="введите Ваше имя"/>				
+		</div>
 		<div class="main">
 			<div class="game">
 				<div>
 					<div class="text">
 						<u>Загадано число</u><br /> 
-						от 0 до <span id="max_number">{{max_number}}</span>
+						от 0 до <span id="max_number"></span>
 					</div>
 					<div class="number" id="guess"></div>
 				</div>
@@ -27,7 +52,7 @@
 						Введите число <br /> 
 						и нажмите ENTER
 					</div>
-					<input class="number" id="try" type="text" value="{{max_leaders}}"/>
+					<input class="number" id="try" type="text" />
 				</div>
 			</div>
 			<div id="steps"></div>

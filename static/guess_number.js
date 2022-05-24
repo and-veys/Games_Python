@@ -1,13 +1,27 @@
 var game;
 document.addEventListener('DOMContentLoaded', init) 
-function init() {	
-	game = new Game(
-		Number(document.getElementById("max_number").innerHTML),
-		Number(document.getElementById("try").value));
+
+function init() {
 	document.getElementById("try").addEventListener('keydown', try_keydown);
 	document.getElementById("try").addEventListener('click', try_click);
 	document.getElementById("name").addEventListener('keydown', name_keydown);
-	sendPost();	
+	document.getElementById("choice").addEventListener('click', choice_click);
+	document.getElementById("set_max_number").addEventListener('keydown', max_number_keydown);
+	document.getElementById("set_max_leaders").addEventListener('keydown', max_leaders_keydown);
+	document.getElementById("ok").addEventListener('click', ok_click);
+	document.getElementById("cancel").addEventListener('click', cancel_click);
+	game = new Game();
+	start();
+}
+
+function start() {
+	n = Number(document.getElementById("set_max_number").value);
+	l = Number(document.getElementById("set_max_leaders").value);
+	if(game.init(n, l)) {
+		sendPost();
+		return true;
+	}
+	return false;
 }
 function sendPost(){
 	document.getElementById("try").value = "Ждите";
@@ -24,7 +38,7 @@ function sendPost(){
 				'Accept': 'application/json',					
 				'Content-Type': 'application/json'				
 			}})
-		.then(response => response.json())					
+		.then(response => response.json())							
 		.then(temp => getPost(temp)) 	
 		.catch(error => console.log(error));
 }
@@ -56,6 +70,7 @@ function getPost(data) {
 function newGame() {
 	document.getElementById("try").value = "";
 	document.getElementById("guess").innerHTML = "";
+	document.getElementById("max_number").innerHTML = game.max_number;
 	game.newGame();
 	newTable(
 		document.getElementById("steps"), 
@@ -81,52 +96,89 @@ function addRow(arr, h="td") {
 	}
 	return row;
 }
+function paintStep() {
+	arr = game.arrayStep()
+	rows = document.getElementById("steps").querySelectorAll('tr');
+	if(rows.length == 1)
+		rows[0].parentElement.appendChild(addRow(arr));
+	else 
+		rows[0].parentElement.insertBefore(addRow(arr), rows[1]);
+	
+}
 function isRun() {
 	return !isNaN(Number(document.getElementById("try").value));
 }
-
-function name_keydown(event) {
-	k = event.keyCode
-	if(k == 8 || k == 46 || k == 37 || k == 39) 
-		return;
-	event.returnValue = event.target.value.length < 10;
+function isNavigationKey(k) {
+	return (k == 8 || k == 46 || k == 37 || k == 39) 
 }
-
+function isNumberKey(ch) {
+	return ch.match(new RegExp("^[0-9]$"));
+}
+function isLenValue(str, n) {
+	return (str.length < n)
+}
+function name_keydown(event) {
+	if(isNavigationKey(event.keyCode)) 
+		return;
+	event.returnValue = isLenValue(event.target.value, 10);
+}
+function max_number_keydown(event){
+	if(isNavigationKey(event.keyCode)) 
+		return;	
+	if(isNumberKey(event.key)) {
+		if(isLenValue(event.target.value, 6))
+			return;
+	}
+	event.returnValue = false;
+}
+function max_leaders_keydown(event){
+	if(isNavigationKey(event.keyCode)) 
+		return;
+	if(isNumberKey(event.key)) {
+		if(isLenValue(event.target.value, 3))
+			return;
+	}
+	event.returnValue = false;
+}
 function try_keydown(event) {
 	if(isRun()) {
-		k = event.keyCode
-		if(k == 8 || k == 46 || k == 37 || k == 39) 
-			return; 
+		if(isNavigationKey(event.keyCode)) 
+			return;
 		num = event.target.value;
-		if(k == 13) {
+		if(event.keyCode == 13) {
 			if(game.check(Number(num))) {
 				document.getElementById("guess").innerHTML = num
 				sendPost();	
 			}
-			else
-			{
-				arr = game.arrayStep()
-				rows = document.getElementById("steps").querySelectorAll('tr');
-				if(rows.length == 1)
-					rows[0].parentElement.appendChild(addRow(arr));
-				else 
-					rows[0].parentElement.insertBefore(addRow(arr), rows[1]);
+			else {
+				paintStep();
 				event.target.value = ""
-			} 
+			}			 
 			return;
 		}
-		if(num.length < String(game.max_number).length) {
-			if(event.key.match(new RegExp("^[0-9]$"))) 
+		if(isLenValue(num, String(game.max_number).length)) {
+			if(isNumberKey(event.key)) 
 				return;
 		}
 	}
 	event.returnValue = false; 
 }
-function try_click(event) {	
+function try_click() {	
 	if(document.getElementById("steps").childNodes.length != 1)
 		newGame();
 }
-
+function choice_click() {	
+	document.getElementById("param").style.display = "flex";
+}
+function ok_click() {
+	if(start()) 
+		cancel_click();
+}
+function cancel_click() {
+	document.getElementById("param").style.display = "none";
+	document.getElementById("set_max_number").value = game.max_number;
+	document.getElementById("set_max_leaders").value = game.max_leaders;
+}
 class Game {
 	#max_number
 	#max_leaders
@@ -134,16 +186,18 @@ class Game {
 	#count
 	#number
 	#time
-	constructor(n, l) {
+	init(n, l) {
+		if(n < 100 || l < 10) 
+			return false;
 		this.#max_number = n;
 		this.#max_leaders = l;
 		this.newGame();
+		return true;
 	}
 	newGame() {
 		this.#number = Math.floor(Math.random() * (this.#max_number+1));
 		this.#count = 0;
 		this.#time = new Date();
-		console.log(this.#number);	
 	}
 	check(st) {
 		this.#step = st;
@@ -158,6 +212,9 @@ class Game {
 	}
 	get max_leaders() {
 		return this.#max_leaders
+	}
+	hint() {
+		return this.#number;
 	}
 	getPostBody(nm) {	
 		var ms = new Date(); 
