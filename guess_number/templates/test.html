@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ru">
+	<head>
+		<meta charset="UTF-8" />
+		<script src={% static "test.js" %}></script>
+		<title>
+			Отправка сообщений
+		</title>		
+	</head>
+	<body>
+		<form "action="/guess_number/test" method="POST" onsubmit="my_submit(event)">
+			{% csrf_token %}
+			Введите что-нибудь
+			<input name="edit" type="text" /> <br />
+			<input name="radio" type="radio" value="RADIO_A" id="Radio_A" checked />
+			<label for="Radio_A">Радиокнопка А </label> <br />
+			<input name="radio" type="radio" value="RADIO_B" id="Radio_B"/>
+			<label for="Radio_A">Радиокнопка B </label> <br />
+			<input name="check_A" type="checkbox" id="check_A" />
+			<label for="check_A">Галочка выбора А </label> <br />
+			<input name="check_B" type="checkbox" id="check_B" />
+			<label for="check_B">Галочка выбора B </label> <br />
+			<input type="submit" value="SUBMIT"/>
+		</form>
+		<br /><br />
+		PARAM_1 = {{PARAM_1}} <br />
+		PARAM_2 = {{PARAM_2}}
+	</body>
+</html>
