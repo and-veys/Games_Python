@@ -5,6 +5,7 @@ from django.http import JsonResponse, HttpResponse
 import json
 from django.db.models import Q
 from .models import Results
+import time, json
 def main(request):
     if(request.method == "POST"): 
         temp = json.load(request) 
@@ -30,3 +31,18 @@ def main(request):
         return JsonResponse(answer)
     content = {"max_number": 1000, "max_leaders": 10}
     return render(request, "guess_number.html", content)
+
+def test(request):
+    content = {"PARAM_1": 10, "PARAM_2": 20}
+    if(request.method.upper() == "POST"):
+        print("POST", "*"*88)
+        print(request.POST)
+        print("BODY", "*"*88)
+        try:
+            print(json.load(request))
+        except:
+            print("ERROR")
+        print("*"*88)
+        content = {"PARAM_1": 100, "PARAM_2": 200}
+        time.sleep(5)        
+    return render(request, "test.html", content)
